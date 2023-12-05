@@ -22,7 +22,9 @@ public enum ErrorHideBehaviour {
 public struct FormView<Content: View>: View {
     @State private var fieldStates: [FieldState] = .empty
     @State private var currentFocusedFieldId: String = .empty
-    @State private var formValidator: FormValidator?
+    @State private var formValidator = FormValidator()
+    
+    @State private var counter: Int = .zero
     
     @ViewBuilder private let content: (FormValidator) -> Content
     
@@ -32,17 +34,15 @@ public struct FormView<Content: View>: View {
     public init(
         validate: ValidationBehaviour = .never,
         hideError: ErrorHideBehaviour = .onValueChanged,
-        formValidator: FormValidator = FormValidator(),
-        @ViewBuilder content: @escaping (FormValidator) -> Content
+        @ViewBuilder content: @escaping (FormValidator?) -> Content
     ) {
         self.content = content
         self.validationBehaviour = validate
         self.errorHideBehaviour = hideError
-        self.formValidator = formValidator
     }
     
     public var body: some View {
-        content(formValidator!)
+        content(formValidator)
             .onPreferenceChange(FieldStatesKey.self) { newValue in
                 fieldStates = newValue
                 
@@ -50,13 +50,14 @@ public struct FormView<Content: View>: View {
                 currentFocusedFieldId = focusedField?.id ?? .empty
                
 //                 Замыкание onValidateRun вызывается методом validate() FormValidator'a.
-                formValidator?.onValidateRun = { focusOnFirstFailedField in
+                formValidator.onValidateRun = { focusOnFirstFailedField in
                     let resutls = newValue.map { $0.onValidate() }
                     
                     // Фокус на первом зафейленом филде.
                     if let index = resutls.firstIndex(of: false), focusOnFirstFailedField {
                         // TODO: UPUP-692
-                        currentFocusedFieldId = fieldStates[index].id
+//                        currentFocusedFieldId = fieldStates[index].id
+                        counter = index
                     }
                     
                     return resutls.allSatisfy { $0 }
@@ -72,8 +73,10 @@ public struct FormView<Content: View>: View {
             .environment(\.errorHideBehaviour, errorHideBehaviour)
             .environment(\.validationBehaviour, validationBehaviour)
             .onDisappear {
-                formValidator?.onValidateRun = nil
-                formValidator = nil
+                formValidator.onValidateRun = nil
+            }
+            .onChange(of: counter) { newValue in
+                currentFocusedFieldId = fieldStates[newValue].id
             }
     }
 }
