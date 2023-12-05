@@ -70,6 +70,8 @@ public struct FormView<Content: View>: View {
             .environment(\.validationBehaviour, validationBehaviour)
             .onDisappear {
                 formValidator.onValidateRun = nil
+                fieldStates = .empty
+                currentFocusedFieldId = .empty
                 print("formValidator.onValidateRun = nil")
             }
     }
