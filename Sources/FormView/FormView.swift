@@ -24,7 +24,7 @@ public struct FormView<Content: View>: View {
     @State private var currentFocusedFieldId: String = .empty
     @State private var formValidator = FormValidator()
     
-    @ViewBuilder private let content: (FormValidator) -> Content
+    @ViewBuilder private let content: ((FormValidator) -> Content)?
     
     private let errorHideBehaviour: ErrorHideBehaviour
     private let validationBehaviour: ValidationBehaviour
@@ -40,7 +40,7 @@ public struct FormView<Content: View>: View {
     }
     
     public var body: some View {
-        content(formValidator)
+        content?(formValidator)
             .onPreferenceChange(FieldStatesKey.self) { newValue in
                 fieldStates = newValue
                 
