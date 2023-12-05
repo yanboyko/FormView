@@ -34,7 +34,7 @@ public struct FormView<Content: View>: View {
     public init(
         validate: ValidationBehaviour = .never,
         hideError: ErrorHideBehaviour = .onValueChanged,
-        @ViewBuilder content: @escaping (FormValidator?) -> Content
+        @ViewBuilder content: @escaping (FormValidator) -> Content
     ) {
         self.content = content
         self.validationBehaviour = validate
