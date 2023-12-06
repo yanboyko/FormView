@@ -24,8 +24,6 @@ public struct FormView<Content: View>: View {
     @State private var currentFocusedFieldId: String = .empty
     @State private var formValidator = FormValidator()
     
-    @State private var counter: Int = .zero
-    
     @ViewBuilder private let content: (FormValidator) -> Content
     
     private let errorHideBehaviour: ErrorHideBehaviour
@@ -56,8 +54,7 @@ public struct FormView<Content: View>: View {
                     // Фокус на первом зафейленом филде.
                     if let index = resutls.firstIndex(of: false), focusOnFirstFailedField {
                         // TODO: UPUP-692
-//                        currentFocusedFieldId = fieldStates[index].id
-                        counter = index
+                        currentFocusedFieldId = fieldStates[index].id
                     }
                     
                     return resutls.allSatisfy { $0 }
@@ -73,10 +70,7 @@ public struct FormView<Content: View>: View {
             .environment(\.errorHideBehaviour, errorHideBehaviour)
             .environment(\.validationBehaviour, validationBehaviour)
             .onDisappear {
-                formValidator.onValidateRun = nil
-            }
-            .onChange(of: counter) { newValue in
-                currentFocusedFieldId = fieldStates[newValue].id
+                formValidator = FormValidator()
             }
     }
 }
